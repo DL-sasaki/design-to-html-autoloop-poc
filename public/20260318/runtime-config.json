@@ -1,0 +1,84 @@
+{
+  // runtime-config.json (JSONC対応)
+  // このファイルだけ編集すれば実行設定を切り替えできます。
+
+  // --- AI実行モード ---
+  // mock | prompt-export | gemini-cli
+  "ai": {
+    "mode": "gemini-cli",
+    "gemini": {
+      // Gemini CLIコマンド
+      "command": "gemini",
+      // 例: gemini -m flash -p
+      "args": ["-m", "flash", "-p"],
+      // タイムアウト(ms)
+      "timeoutMs": 120000,
+      // 失敗時の再試行回数
+      "retryCount": 1
+    }
+  },
+
+  // --- 入出力パス（必要なら上書き） ---
+  "inputImagePath": "input/design.png",
+  "outputHtmlPath": "output/index.html",
+  "outputCssPath": "output/styles.css",
+
+  // --- 反復制御 ---
+  "maxIterations": 10,
+  "targetDiffRatio": 0.05,
+  "minimumImprovement": 0.005,
+
+  "viewport": {
+    "width": 1440,
+    "height": 4000
+  },
+
+  // --- リファレンスルール生成設定 ---
+  "reference": {
+    // mode: "url" or "local"
+    // url: リファレンスサイトURLから抽出
+    // local: input/reference.html + input/reference.css から抽出
+    "mode": "url",
+
+    "url": {
+      // false: 外部サイト読込をスキップして後続処理へ進む
+      // true: pageUrlを読込んでルール抽出を実行
+      "enabled": false,
+      // mode=url のときに使う
+      "pageUrl": "https://www.jaccs.co.jp/corporate/",
+      // 追加で読みたいCSS URL（任意）
+      "extraCssUrls": []
+    },
+
+    "local": {
+      // mode=local のときに使う
+      "htmlPath": "input/reference.html",
+      "cssPath": "input/reference.css"
+    },
+
+    "rules": {
+      // 生成される定義書の出力先
+      "jsonPath": "design-rules.json",
+      "guidelinePath": "design-guideline.md",
+
+      // 自動生成(画像->html/css)実行時に定義書を再生成するか
+      "regenerateOnRun": false,
+
+      // regenerateOnRun=true のとき
+      // true: 既存定義書を上書き
+      // false: 既存定義書があれば上書きしない
+      "overwrite": false
+    }
+  },
+
+  // --- ディレクトリ上書き（通常は未変更でOK） ---
+  "directories": {
+    "output": "output",
+    "renders": "renders",
+    "diff": "diff",
+    "logs": "logs",
+    "iterations": "logs/iterations",
+    "generatedPrompts": "prompts/generated",
+    "aiLogs": "logs/ai"
+  }
+}

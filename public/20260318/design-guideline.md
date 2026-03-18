@@ -1,0 +1,127 @@
+# Design Guideline
+
+## Scope
+- Generate a single web section only.
+- Keep output in `output/index.html` and `output/styles.css`.
+- Prefer center-aligned section composition for visual comparison.
+
+## Source
+- Mode: url
+- URL: https://www.jaccs.co.jp/corporate/
+
+## Tokens
+### Colors
+- #000
+- #0000
+- #000000
+- #00519c
+- #009944
+- #094
+- #0bf
+- #2196f3
+- #2a855c
+- #333
+- #333333
+- #33AD69
+- #3f51b5
+- #444
+- #444444
+- #47C17D
+- #47c17d
+- #4caf50
+- #607d8b
+- #68c148
+- #6BCB96
+- #6bcb96
+- #758fa0
+- #999
+- #A2A6AA
+- #B5DFC8
+- #D6D6D6
+- #E2E2E2
+- #E2E3E2
+- #E60012
+- #E7EDED
+- #EBD6C6
+
+### Font Families
+- "Noto Sans JP", "メイリオ", "Meiryo", "MS Pゴシック", "MS PGothic", sans-serif
+- inherit
+- monospace, monospace
+- メイリオ,Meiryo,ヒラギノ角ゴ Pro W3,Hiragino Kaku Gothic Pro,ＭＳ Ｐゴシック,arial,helvetica,clean,sans-serif
+- 游明朝,YuMincho,Hiragino Mincho ProN W3,ヒラギノ明朝 ProN W3,Hiragino Mincho ProN,HG明朝E,ＭＳ Ｐ明朝,ＭＳ 明朝,serif
+
+### Font Sizes
+- 0
+- 1.2rem
+- 1.3rem
+- 1.4rem
+- 1.4rem!important
+- 1.4rem}.s_eirList .s_eirModule_title{font-size:1.4rem
+- 1.6rem
+- 1.6rem}.s_eirModule_category{margin-left:24px}.m-link-list__item .s_eirModule_title{font-size:1.6rem!important}.m-link-list__item .s_eirItem:after{bottom:8px}.m-panel-border .s_eirModule_title{font-size:1.8rem}.meetingTable{margin-top:32px
+- 1.6rem}.unq-content-side__sidebar .s_eirList__link:not(.unq-content-side__sidebar .s_eirList-icon):after{bottom:8px}.unq-content-side__sidebar .s_eirList_item-url .s_eirItem{font-size:1.6rem}.unq-content-side__sidebar .s_eirList_item-url .s_eirItem:after{bottom:8px}.unq-content-side__sidebar .s_eirItem{font-size:1.6rem}}@media screen and (max-width:768px){.s_eirItem{flex-wrap:wrap}.s_eirList_item{flex-direction:column}.eir .s_eirList_item{flex-direction:row
+- 1.8rem
+- 100%
+- 10px
+- 13px
+- 1em
+- 1rem
+- 2.2rem
+- 2.2rem}.eirHeading{margin-top:48px
+- 2.4rem
+- 2.6rem
+- 2.8rem
+- 20px
+- 23px}.eirCalendar_month{margin-top:28px}}@media screen and (max-width:750px){.qir .qirContent_table{overflow-x:auto}.qir .qirArea-responsive .qirContentWrapper{display:block
+- 24px
+- 2em
+
+### Spacing
+- -104px
+- -10px
+- -127px
+- -180px
+- -1px
+- -20px
+- -25px
+- -2px
+- -60px
+- 0
+- 0 !important
+- 0 0 0 10px
+- 0 10px
+- 0 12px
+- 0 16px
+- 0 1em
+- 0 32px
+- 0 3px 0 0}.qir .qirArea{max-width:1000px}.qir .qirContent_table table,.qir .qirContent_table td,.qir .qirContent_table th{border-color:#c7d5de}.qir .qirContent_table td,.qir .qirContent_table th{padding:10px 4px}.qir .qirContent_table tbody th,.qir .qirContent_table thead th{background-color:#758fa0
+- 0 48px
+- 0 5px 0 0}.s_eirModule_type_figure_image{height:15px
+- 0 8.43%
+- 0 8px
+- 0 96px
+- 0 auto
+- 0 auto 30px
+- 0!important}.m-panel-border .s_eirQuarterBlock>:last-child{margin-bottom:0!important}.m-panel-border .s_eirItem>:first-child{margin-top:0!important}.m-panel-border .s_eirItem>:last-child{margin-bottom:0!important}.m-panel-border .eirItem_title>:first-child{margin-top:0!important}.m-panel-border .eirItem_title>:last-child{margin-bottom:0!important}.meetingTable{margin-top:24px
+- 0!important}.meetingTable td>:last-child,.meetingTable th>:last-child{margin-bottom:0!important}.meetingTable th{background-color:#eff3f5
+- 0!important}.meetingTable td>:last-child{margin-bottom:0!important}.meetingTable td>:nth-child(n+2){margin-top:16px!important}.cat-news-pr .s_eirModule_category_icon,.cat-news-press .s_eirModule_category_icon{background-color:#cfd5ea}.cat-news-announcement .s_eirModule_category_icon,.cat-news-ir_material_for_fiscal_ym .s_eirModule_category_icon,.cat-sub-ir_material_for_fiscal_ym .s_eirModule_category_icon{background-color:#dfd8b5}.cat-news-tanshin .s_eirModule_category_icon,.cat-news-yuho .s_eirModule_category_icon{background-color:#facccf}.unq-content-side .eir{margin-top:8px!important}.unq-content-side .eir.eir_area_area_irlibraryhub_005,.unq-content-side .eir.eir_area_area_top_023{margin-top:24px!important}.unq-content-side__sidebar .s_eirList{display:flex
+- 0.35em 0.75em 0.625em
+- 0.67em 0
+- 0px !important
+- 0}.eir-pager span{display:inline-block
+
+### Border Radius
+- 0
+- 3px
+- 50%
+- inherit
+
+### Shadows
+- (none)
+
+## Generation Rules
+- Reuse listed tokens before introducing new values.
+- Preserve section hierarchy and avoid unnecessary extra wrappers.
+- Keep CTA, heading, and supporting text as primary visual anchors.
+- Avoid full-page recreation; output only one section.

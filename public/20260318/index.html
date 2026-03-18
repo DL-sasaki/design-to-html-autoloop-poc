@@ -1,0 +1,494 @@
+<!doctype html>
+<html lang="ja">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>JACCS Hero Section</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <section class="hero-section">
+      <!-- Header Area -->
+      <header class="main-header">
+        <div class="header-top">
+          <div class="utility-nav">
+            <a href="#">個人のお客様</a>
+            <a href="#">法人・加盟店のお客様</a>
+            <a href="#" class="lang-switch">
+              <svg class="icon-globe" viewBox="0 0 24 24" width="16" height="16">
+                <circle cx="12" cy="12" r="10" fill="none" stroke="currentColor" stroke-width="1.5" />
+                <path d="M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z" fill="none" stroke="currentColor" stroke-width="1.5" />
+              </svg>
+              English
+            </a>
+            <a href="#" class="search-icon">
+              <svg class="icon-search" viewBox="0 0 24 24" width="16" height="16">
+                <circle cx="11" cy="11" r="8" fill="none" stroke="currentColor" stroke-width="2" />
+                <line x1="21" y1="21" x2="16.65" y2="16.65" fill="none" stroke="currentColor" stroke-width="2" />
+              </svg>
+              サイト内検索
+            </a>
+          </div>
+        </div>
+        <div class="header-bottom">
+          <div class="logo-area">
+            <div class="logo-slogan">未来にタネをまこう。</div>
+            <div class="logo-jaccs">
+              <span class="jaccs-j">J</span><span class="jaccs-a">A</span><span class="jaccs-c">C</span><span class="jaccs-c2">C</span><span class="jaccs-s">S</span>
+              <div class="logo-dots">
+                <span class="dot red"></span>
+                <span class="dot grey"></span>
+              </div>
+            </div>
+          </div>
+          <nav class="main-nav">
+            <ul>
+              <li><a href="#">ジャックスについて</a></li>
+              <li><a href="#">事業・サービス</a></li>
+              <li><a href="#">株主・投資家の皆様</a></li>
+              <li><a href="#">サステナビリティ</a></li>
+              <li><a href="#">ニュースリリース</a></li>
+              <li><a href="#">採用情報</a></li>
+            </ul>
+          </nav>
+        </div>
+      </header>
+
+      <!-- Hero Content Area -->
+      <div class="hero-visual">
+        <div class="split-container">
+          <div class="left-panel">
+            <div class="placeholder-img female"></div>
+          </div>
+          <div class="right-panel">
+            <div class="placeholder-img male"></div>
+          </div>
+        </div>
+
+        <div class="hero-overlay">
+          <div class="copy-container">
+            <h1 class="main-copy">
+              <span class="copy-line">未来を、</span>
+              <div class="copy-bottom-row">
+                <a href="#" class="brand-site-link">
+                  <div class="arrow-circle">
+                    <span class="arrow-icon"></span>
+                  </div>
+                  <span class="link-text">ブランドサイト</span>
+                </a>
+                <span class="copy-line">買ったんだ。</span>
+              </div>
+            </h1>
+          </div>
+
+          <div class="hero-controls">
+            <div class="nav-arrows">
+              <button class="arrow-btn prev"></button>
+              <button class="arrow-btn next"></button>
+            </div>
+            <div class="progress-segments">
+              <div class="segment active"></div>
+              <div class="segment"></div>
+              <div class="segment"></div>
+            </div>
+            <button class="pause-btn">
+              <span class="pause-icon"></span>
+            </button>
+          </div>
+        </div>
+
+        <div class="green-accent"></div>
+      </div>
+    </section>
+  </body>
+  <style>
+    /* Reset & Base Styles */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    html {
+      font-size: 62.5%; /* 1rem = 10px */
+    }
+
+    body {
+      font-family: 'Noto Sans JP', 'メイリオ', 'Meiryo', 'MS Pゴシック', sans-serif;
+      color: #333;
+      background-color: #fff;
+      overflow-x: hidden;
+      line-height: 1.6;
+    }
+
+    /* Hero Section Layout */
+    .hero-section {
+      width: 100%;
+      height: 100vh;
+      max-height: 900px;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* Header Styles */
+    .main-header {
+      width: 100%;
+      background: #fff;
+      position: relative;
+      z-index: 100;
+      flex-shrink: 0;
+    }
+
+    .header-top {
+      border-bottom: 1px solid #e2e2e2;
+      padding: 8px 60px;
+      display: flex;
+      justify-content: flex-end;
+    }
+
+    .utility-nav {
+      display: flex;
+      gap: 24px;
+      align-items: center;
+    }
+
+    .utility-nav a {
+      text-decoration: none;
+      color: #333;
+      font-size: 1.2rem;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .header-bottom {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 15px 60px;
+    }
+
+    .logo-area {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .logo-slogan {
+      font-size: 1.2rem; /* Updated to 12px */
+      color: #009944;
+      margin-bottom: 2px;
+      font-weight: 400;
+      letter-spacing: 0.1em;
+    }
+
+    .logo-jaccs {
+      font-size: 3.2rem;
+      font-weight: 900;
+      color: #009944;
+      display: flex;
+      align-items: baseline;
+      position: relative;
+      line-height: 1;
+    }
+
+    .logo-dots {
+      display: flex;
+      gap: 3px;
+      margin-left: 4px;
+    }
+
+    .logo-dots .dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+    }
+
+    .logo-dots .red {
+      background-color: #e60012;
+    }
+    .logo-dots .grey {
+      background-color: #a2a6aa;
+    }
+
+    .main-nav {
+      flex-grow: 1;
+      display: flex;
+      justify-content: flex-end; /* Updated to align right */
+    }
+
+    .main-nav ul {
+      display: flex;
+      list-style: none;
+      gap: 32px;
+    }
+
+    .main-nav a {
+      text-decoration: none;
+      color: #333;
+      font-size: 1.5rem;
+      font-weight: bold;
+    }
+
+    .search-icon {
+      font-weight: bold;
+    }
+
+    /* Hero Visual Styles */
+    .hero-visual {
+      position: relative;
+      flex-grow: 1;
+      overflow: hidden;
+      background-color: #000;
+    }
+
+    .split-container {
+      display: flex;
+      height: 100%;
+      width: 100%;
+    }
+
+    .left-panel,
+    .right-panel {
+      flex: 1;
+      height: 100%;
+      overflow: hidden;
+    }
+
+    .placeholder-img {
+      width: 100%;
+      height: 100%;
+      background-size: cover;
+      background-position: center;
+    }
+
+    .left-panel .placeholder-img {
+      background-image: url('https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&q=80&w=1200');
+      filter: brightness(0.9);
+    }
+
+    .right-panel .placeholder-img {
+      background-image: url('https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?auto=format&fit=crop&q=80&w=1200');
+      filter: brightness(0.9);
+    }
+
+    /* Hero Overlay & Text */
+    .hero-overlay {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      z-index: 10;
+      pointer-events: none;
+      padding: 0 60px;
+    }
+
+    .copy-container {
+      width: 100%;
+      max-width: 1200px;
+      margin: 0 auto;
+      transform: translateY(-20px);
+    }
+
+    .main-copy {
+      color: #fff;
+      font-size: clamp(6rem, 8vw, 10rem);
+      font-family: '游明朝', YuMincho, 'Hiragino Mincho ProN W3', serif;
+      line-height: 1.2;
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      text-shadow: 0 0 30px rgba(0, 0, 0, 0.4);
+    }
+
+    .copy-bottom-row {
+      display: flex;
+      align-items: flex-end;
+      gap: 48px; /* Gap between CTA and text */
+      margin-top: 10px;
+    }
+
+    .brand-site-link {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      color: #fff;
+      text-decoration: none;
+      cursor: pointer;
+      pointer-events: auto;
+      margin-bottom: 0.2em; /* Align visually with text baseline */
+    }
+
+    .arrow-circle {
+      width: 48px;
+      height: 48px;
+      background-color: #009944;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: opacity 0.3s ease;
+    }
+
+    .brand-site-link:hover .arrow-circle {
+      opacity: 0.9;
+    }
+
+    .arrow-icon::after {
+      content: '';
+      display: block;
+      width: 10px;
+      height: 10px;
+      border-top: 2px solid #fff;
+      border-right: 2px solid #fff;
+      transform: rotate(45deg);
+      margin-left: -4px;
+    }
+
+    .link-text {
+      font-size: 1.8rem;
+      font-weight: bold;
+      letter-spacing: 0.1em;
+      white-space: nowrap;
+    }
+
+    /* Controls */
+    .hero-controls {
+      position: absolute;
+      left: 60px;
+      bottom: 40px;
+      display: flex;
+      align-items: center;
+      gap: 12px; /* Reduced gap */
+      pointer-events: auto;
+    }
+
+    .nav-arrows {
+      display: flex;
+    }
+
+    .arrow-btn {
+      width: 40px;
+      height: 40px;
+      background: #009944;
+      border: none;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: background 0.3s ease;
+    }
+
+    .arrow-btn:hover {
+      background: #2a855c;
+    }
+
+    .arrow-btn.prev::after {
+      content: '';
+      width: 8px;
+      height: 8px;
+      border-bottom: 2px solid #fff;
+      border-left: 2px solid #fff;
+      transform: rotate(45deg);
+      margin-left: 4px;
+    }
+
+    .arrow-btn.next::after {
+      content: '';
+      width: 8px;
+      height: 8px;
+      border-top: 2px solid #fff;
+      border-right: 2px solid #fff;
+      transform: rotate(45deg);
+      margin-left: -4px;
+    }
+
+    .progress-segments {
+      display: flex;
+      gap: 4px;
+      align-items: center;
+    }
+
+    .segment {
+      width: 50px;
+      height: 1px; /* Thinner lines */
+      background: rgba(255, 255, 255, 0.3);
+    }
+
+    .segment.active {
+      background: #fff;
+    }
+
+    .pause-btn {
+      width: 32px;
+      height: 32px;
+      background: none;
+      border: 1px solid rgba(255, 255, 255, 0.5);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+    }
+
+    .pause-icon {
+      display: flex;
+      gap: 3px;
+    }
+
+    .pause-icon::before,
+    .pause-icon::after {
+      content: '';
+      width: 2px;
+      height: 10px;
+      background: #fff;
+    }
+
+    /* Decorative Accent - Larger and Steeper */
+    .green-accent {
+      position: absolute;
+      right: 0;
+      bottom: 0;
+      width: 0;
+      height: 0;
+      border-style: solid;
+      border-width: 0 0 180px 480px; /* Increased size and adjusted slope */
+      border-color: transparent transparent #009944 transparent;
+      z-index: 20;
+    }
+
+    /* Responsive adjustments */
+    @media (max-width: 1024px) {
+      .main-copy {
+        font-size: 5rem;
+      }
+      .copy-bottom-row {
+        flex-direction: column-reverse;
+        align-items: flex-start;
+        gap: 20px;
+      }
+      .main-nav {
+        display: none;
+      }
+      .header-bottom {
+        padding: 10px 30px;
+      }
+      .header-top {
+        padding: 8px 30px;
+      }
+      .hero-overlay {
+        padding: 0 30px;
+      }
+      .hero-controls {
+        left: 30px;
+        bottom: 30px;
+      }
+      .green-accent {
+        border-width: 0 0 100px 280px;
+      }
+    }
+  </style>
+</html>
