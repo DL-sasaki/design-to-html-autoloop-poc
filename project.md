@@ -17,7 +17,7 @@ This project must implement a PoC tool that:
 
 * reads a design image from a predefined input folder,
 * starts execution from a VSCode-triggered command/task,
-* generates HTML/CSS for a static landing page,
+* generates HTML/CSS for a single static web section,
 * renders the result in a browser,
 * compares the rendered output against the source design image,
 * iteratively revises the generated HTML/CSS multiple times.
@@ -28,7 +28,7 @@ This project must implement a PoC tool that:
 
 ### 2.1 対象範囲 / In Scope
 
-* 静的LP1ページのみ
+* 静的Webセクション1つのみ
 * 入力画像は1ファイル
 * 出力は `index.html` と `styles.css`
 * 実行トリガーは VSCode Task
@@ -249,6 +249,7 @@ project-root/
 #### Step 4. Compare
 
 * compare `input/design.png` and current render
+* align both images centered on the comparison canvas
 * generate visual diff image
 * calculate diff metrics
 
@@ -455,17 +456,17 @@ type IterationLog = {
 
 目的:
 
-* 画像から静的LPのHTML/CSSを初回生成する
+* 画像から静的WebセクションのHTML/CSSを初回生成する
 
 Required instruction in English:
 
 ```text
-Generate a static landing page using only HTML and CSS.
+Generate a single static web section using only HTML and CSS.
 Do not use canvas for the entire layout.
 Do not embed the source design image as the final page.
 Create semantic HTML where possible.
 Output HTML and CSS separately.
-Assume a desktop-first static landing page.
+Assume a desktop-first single web section screenshot reconstruction.
 ```
 
 ### 12.2 diff-analysis.md
@@ -663,7 +664,7 @@ Priority order:
 5. AI adapter abstraction
 
 Do not add extra product features.
-Do not expand scope beyond a single static landing page PoC.
+Do not expand scope beyond a single static web section PoC.
 Prefer simple and maintainable code over premature extensibility.
 Every module must be independently understandable.
 All file paths must be workspace-relative.

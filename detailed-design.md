@@ -4,7 +4,7 @@
 本システムは、`input/design.png` を入力として、HTML/CSSを生成し、レンダリング結果との差分を評価しながら反復的に修正するローカル実行型PoCである。
 
 ## 2. スコープ
-- 対象: 静的LP1ページ
+- 対象: 静的Webセクション1つ
 - 入力: PNG1枚（`input/design.png`）
 - 出力: `output/index.html`, `output/styles.css`
 - 実行起点: VSCode Task (`Generate from Design`)
@@ -21,7 +21,7 @@
 - `prepare-input.ts`: 入力検証・作業ディレクトリ準備
 - `generate-initial.ts`: 初回HTML/CSS生成
 - `render-page.ts`: Playwrightレンダリング
-- `compare-images.ts`: 差分画像とdiffRatio算出
+- `compare-images.ts`: 差分画像とdiffRatio算出（中央配置比較）
 - `analyze-diff.ts`: 差分診断
 - `revise-code.ts`: 改修反映
 - `finalize.ts`: 最終成果物とサマリーログ
@@ -216,7 +216,7 @@ gemini -m flash -p "Return ONLY valid JSON: {\"html\":\"...\",\"css\":\"...\"}"
 - AI依存がAdapterで抽象化されている
 
 ## 16. 既知の制約
-- 単一ページのみ
+- 単一セクションのみ
 - 単一PNG入力のみ
 - 高精度再現はプロンプト品質とモデル応答品質に依存
 - Gemini CLIの出力揺れに対しては修復処理で吸収するが、完全保証ではない

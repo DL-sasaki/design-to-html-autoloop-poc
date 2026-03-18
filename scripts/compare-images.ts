@@ -7,10 +7,14 @@ import type { DiffMetrics } from "./shared/types.js";
 
 function toCanvas(source: PNG, width: number, height: number): PNG {
   const canvas = new PNG({ width, height, colorType: 6 });
+  const offsetX = Math.floor((width - source.width) / 2);
+  const offsetY = Math.floor((height - source.height) / 2);
 
   for (let y = 0; y < height; y += 1) {
     for (let x = 0; x < width; x += 1) {
-      const dstIndex = (y * width + x) * 4;
+      const dstX = x + offsetX;
+      const dstY = y + offsetY;
+      const dstIndex = (dstY * width + dstX) * 4;
       canvas.data[dstIndex] = 255;
       canvas.data[dstIndex + 1] = 255;
       canvas.data[dstIndex + 2] = 255;

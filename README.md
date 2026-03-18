@@ -2,7 +2,7 @@
 
 ## Purpose
 
-A local PoC pipeline that takes `input/design.png`, generates static `HTML/CSS`, renders it, computes image diff, and iteratively revises output.
+A local PoC pipeline that takes `input/design.png` (single section screenshot), generates static section `HTML/CSS`, renders it, computes image diff, and iteratively revises output.
 
 ## Setup
 
@@ -56,5 +56,5 @@ Edit centralized values in `scripts/shared/config.ts`:
 ## Known Limitations
 
 - Uses a mock AI adapter by default (`scripts/shared/ai-adapter.ts`).
-- Single page and single input image only.
+- Single section and single input image only.
 - Desktop-first static output.
