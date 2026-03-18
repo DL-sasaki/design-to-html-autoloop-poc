@@ -3,6 +3,7 @@ import { spawn } from "node:child_process";
 import path from "node:path";
 import { config } from "./config.js";
 import { ensureDir, readText, writeText } from "./file-utils.js";
+import { loadGuidelineText } from "./design-rules.js";
 import type { DiffAnalysis, DiffMetrics } from "./types.js";
 
 export interface AiAdapter {
@@ -292,6 +293,22 @@ async function parseDiffAnalysisWithRepair(raw: string, logStem: string): Promis
   }
 }
 
+async function appendGuideline(basePrompt: string): Promise<string> {
+  const guideline = await loadGuidelineText();
+  if (!guideline.trim()) {
+    return basePrompt;
+  }
+
+  return [
+    basePrompt,
+    "",
+    "Reference design guideline (must follow when possible):",
+    "```markdown",
+    guideline.trim(),
+    "```"
+  ].join("\n");
+}
+
 export class MockAiAdapter implements AiAdapter {
   async generateInitial(input: {
     imagePath: string;
@@ -541,7 +558,11 @@ class GeminiCliAdapter implements AiAdapter {
     ].join("\n");
 
     const logStem = "initial-generation";
-    const raw = await runGemini([prompt, strictPrompt], logStem);
+    const [guidedPrompt, guidedStrictPrompt] = await Promise.all([
+      appendGuideline(prompt),
+      appendGuideline(strictPrompt)
+    ]);
+    const raw = await runGemini([guidedPrompt, guidedStrictPrompt], logStem);
     return parseHtmlCssWithRepair(raw, logStem);
   }
 
@@ -605,7 +626,11 @@ class GeminiCliAdapter implements AiAdapter {
     ].join("\n");
 
     const logStem = `analysis-${Date.now()}`;
-    const raw = await runGemini([prompt, strictPrompt], logStem);
+    const [guidedPrompt, guidedStrictPrompt] = await Promise.all([
+      appendGuideline(prompt),
+      appendGuideline(strictPrompt)
+    ]);
+    const raw = await runGemini([guidedPrompt, guidedStrictPrompt], logStem);
     return parseDiffAnalysisWithRepair(raw, logStem);
   }
 
@@ -663,10 +688,11 @@ class GeminiCliAdapter implements AiAdapter {
     ].join("\n");
 
     const logStem = `revise-${String(input.iteration).padStart(2, "0")}`;
-    const raw = await runGemini(
-      [prompt, strictPrompt],
-      logStem
-    );
+    const [guidedPrompt, guidedStrictPrompt] = await Promise.all([
+      appendGuideline(prompt),
+      appendGuideline(strictPrompt)
+    ]);
+    const raw = await runGemini([guidedPrompt, guidedStrictPrompt], logStem);
     return parseHtmlCssWithRepair(raw, logStem);
   }
 }

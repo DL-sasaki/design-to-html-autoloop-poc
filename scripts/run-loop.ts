@@ -8,6 +8,7 @@ import { compareImages } from "./compare-images.js";
 import { analyzeDiff } from "./analyze-diff.js";
 import { reviseCode } from "./revise-code.js";
 import { finalizeRun } from "./finalize.js";
+import { ensureDesignRules, getRulesFilePaths } from "./shared/design-rules.js";
 
 function nowIso(): string {
   return new Date().toISOString();
@@ -64,6 +65,19 @@ async function main(): Promise<void> {
     });
 
     await prepareInput();
+
+    await reportProgress({
+      status: "running",
+      phase: "prepare-input",
+      iteration: 0,
+      diffRatio: null,
+      message: "Preparing design rules"
+    });
+    await ensureDesignRules();
+    const rulePaths = getRulesFilePaths();
+    console.log(
+      `[RULES] mode=${config.reference.mode} overwrite=${config.reference.rules.overwrite} json="${rulePaths.jsonPath}" guideline="${rulePaths.guidelinePath}"`
+    );
 
     await reportProgress({
       status: "running",

@@ -35,6 +35,8 @@ export async function prepareInput(): Promise<void> {
     ensureDir(config.directories.logs),
     ensureDir(config.directories.iterations),
     ensureDir(config.directories.generatedPrompts),
-    ensureDir(config.directories.aiLogs)
+    ensureDir(config.directories.aiLogs),
+    ensureDir(path.dirname(config.reference.rules.jsonPath)),
+    ensureDir(path.dirname(config.reference.rules.guidelinePath))
   ]);
 }
