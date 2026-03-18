@@ -3,7 +3,7 @@ export const config = {
     mode: "gemini-cli" as "mock" | "prompt-export" | "gemini-cli",
     gemini: {
       command: "gemini",
-      args: ["-p"],
+      args: ["-m", "flash", "-p"],
       timeoutMs: 120000,
       retryCount: 1
     }

@@ -8,116 +8,91 @@
 </head>
 <body>
     <header class="header">
-        <div class="header-container">
-            <div class="logo-section">
-                <svg class="logo-icon" width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M26 10C24 6 20 4 16 4C10 4 4 10 4 16C4 22 10 28 16 28C20 28 24 26 26 22L20 16L26 10Z" fill="#2895a6"/>
-                </svg>
-                <span class="logo-text">YOUTRUST</span>
+        <div class="header-inner">
+            <div class="logo">
+                <img src="https://youtrust.jp/assets/logo-f6e0b7b1.svg" alt="YOUTRUST">
             </div>
-            <nav class="nav-links">
-                <a href="#">できること</a>
-                <a href="#">おすすめコンテンツ</a>
-                <a href="#">利用者の声</a>
-                <a href="#">募集はこちら</a>
-                <a href="#">よくある質問</a>
+            <nav class="nav">
+                <ul>
+                    <li><a href="#">できること</a></li>
+                    <li><a href="#">おすすめコンテンツ</a></li>
+                    <li><a href="#">利用者の声</a></li>
+                    <li><a href="#">募集はこちら</a></li>
+                    <li><a href="#">よくある質問</a></li>
+                </ul>
             </nav>
-            <div class="nav-actions">
-                <a href="#" class="nav-link-corp">採用したい企業様はこちら <span class="icon-arrow">↗</span></a>
-                <button class="btn-login">ログイン</button>
-                <button class="btn-signup">新規登録</button>
+            <div class="header-actions">
+                <a href="#" class="link-recruit">採用したい企業様はこちら ↗</a>
+                <a href="#" class="btn-login">ログイン</a>
+                <a href="#" class="btn-register">新規登録</a>
             </div>
         </div>
     </header>
 
     <main class="hero">
-        <div class="hero-container">
-            <div class="hero-content">
-                <div class="hero-badge">"つながり"がキャリアの可能性を広げる</div>
-                <h1 class="hero-title">
-                    <span class="hero-subtitle">日本のキャリアSNS</span>
-                    <div class="hero-main-logo">
-                        <svg class="logo-icon-large" width="64" height="64" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
-                            <path d="M26 10C24 6 20 4 16 4C10 4 4 10 4 16C4 22 10 28 16 28C20 28 24 26 26 22L20 16L26 10Z" fill="#2895a6"/>
-                        </svg>
-                        <span class="logo-text-large">YOUTRUST</span>
+        <div class="hero-content">
+            <div class="hero-text-area">
+                <p class="hero-catchphrase">"つながり"がキャリアの可能性を広げる</p>
+                <h1 class="hero-title">日本のキャリアSNS</h1>
+                <div class="hero-logo-large">
+                    <img src="https://youtrust.jp/assets/logo-f6e0b7b1.svg" alt="YOUTRUST">
+                </div>
+                <div class="hero-stats">
+                    <div class="stat-item laurel-container">
+                        <div class="laurel laurel-left"></div>
+                        <p>登録ユーザー<br><span class="highlight">約40万人</span></p>
+                        <div class="laurel laurel-right"></div>
                     </div>
-                </h1>
-                
-                <div class="hero-trust-badges">
-                    <div class="trust-badge">
-                        <div class="trust-icon-leaf"></div>
-                        <div class="trust-text">
-                            <span class="trust-label">登録ユーザー</span>
-                            <span class="trust-value">約40万人</span>
-                        </div>
-                        <div class="trust-icon-leaf-right"></div>
-                    </div>
-                    <div class="trust-badge highlight">
-                        <div class="trust-icon-leaf"></div>
-                        <div class="trust-text">
-                            <span class="trust-label">経済産業省主催</span>
-                            <span class="trust-desc">日本スタートアップ大賞2024</span>
-                            <span class="trust-sub">審査委員会特別賞</span>
-                        </div>
-                        <div class="trust-icon-leaf-right"></div>
+                    <div class="stat-item laurel-container">
+                        <div class="laurel laurel-left"></div>
+                        <p>経済産業省主催<br>日本スタートアップ大賞2024<br><span class="award-text">審査委員会特別賞</span></p>
+                        <div class="laurel laurel-right"></div>
                     </div>
                 </div>
-
-                <div class="hero-cta-section">
-                    <button class="btn-cta-main">
-                        今すぐ会員登録 (無料)
-                        <span class="cta-timer">30秒</span>
-                    </button>
+                <div class="hero-cta">
+                    <a href="#" class="btn-cta-main">今すぐ会員登録 (無料)</a>
+                    <div class="cta-badge">30秒</div>
                 </div>
             </div>
 
             <div class="hero-visual">
-                <div class="visual-circles">
-                    <div class="circle circle-bg"></div>
-                    <div class="circle circle-md"></div>
-                    <div class="circle circle-sm"></div>
-                </div>
-                
-                <div class="smartphone-mockup">
-                    <div class="mockup-inner">
-                        <div class="mockup-header">
-                            <span class="mockup-icon">🔍</span>
-                            <svg class="mockup-logo" width="20" height="20" viewBox="0 0 32 32" fill="none">
-                                <path d="M26 10C24 6 20 4 16 4C10 4 4 10 4 16C4 22 10 28 16 28C20 28 24 26 26 22L20 16L26 10Z" fill="#2895a6"/>
-                            </svg>
-                            <span class="mockup-icon">👤</span>
+                <div class="circle-bg-large"></div>
+                <div class="circle-bg-medium"></div>
+                <div class="visual-smartphone">
+                    <div class="mock-screen">
+                        <div class="mock-header">
+                            <img src="https://youtrust.jp/assets/logo-f6e0b7b1.svg" alt="">
                         </div>
-                        <div class="profile-card">
-                            <div class="profile-avatar">
-                                <div class="avatar-placeholder">👩</div>
+                        <div class="mock-profile">
+                            <div class="profile-img-wrap">
+                                <img src="https://placehold.jp/80x80.png" alt="profile" class="profile-img">
                             </div>
                             <p class="profile-name">伊藤 みく</p>
                         </div>
-                        <div class="stats-grid">
-                            <div class="stat-item">
-                                <span class="stat-label">注目</span>
-                                <span class="stat-value">6人</span>
-                            </div>
-                            <div class="stat-item">
-                                <span class="stat-label">気になる</span>
-                                <span class="stat-value">38社</span>
-                            </div>
+                        <div class="mock-stats">
+                            <div class="mock-stat"><span>注目</span>6人</div>
+                            <div class="mock-stat"><span>気になる</span>38社</div>
                         </div>
                     </div>
                 </div>
-
-                <div class="floating-element element-1">
-                    <div class="element-icon">🏠</div>
-                    <span class="element-label">副業・転職</span>
+                
+                <div class="visual-item item-top">
+                    <div class="item-label">副業・転職</div>
+                    <div class="character-icon char-1">
+                        <svg viewBox="0 0 100 100" class="char-svg"><circle cx="50" cy="40" r="25" fill="#33b1b1"/><path d="M20 90 Q50 60 80 90" fill="none" stroke="#33b1b1" stroke-width="5"/></svg>
+                    </div>
                 </div>
-                <div class="floating-element element-2">
-                    <div class="element-icon">💬</div>
-                    <span class="element-label">情報収集</span>
+                <div class="visual-item item-right">
+                    <div class="item-label">情報収集</div>
+                    <div class="character-icon char-2">
+                        <svg viewBox="0 0 100 100" class="char-svg"><circle cx="50" cy="40" r="25" fill="#ff6b6b"/><path d="M20 90 Q50 60 80 90" fill="none" stroke="#ff6b6b" stroke-width="5"/></svg>
+                    </div>
                 </div>
-                <div class="floating-element element-3">
-                    <div class="element-icon">🤝</div>
-                    <span class="element-label">同世代・同職種の交流</span>
+                <div class="visual-item item-bottom">
+                    <div class="item-label">交流</div>
+                    <div class="character-icon char-3">
+                        <svg viewBox="0 0 100 100" class="char-svg"><circle cx="50" cy="40" r="25" fill="#ffd93d"/><path d="M20 90 Q50 60 80 90" fill="none" stroke="#ffd93d" stroke-width="5"/></svg>
+                    </div>
                 </div>
             </div>
         </div>
