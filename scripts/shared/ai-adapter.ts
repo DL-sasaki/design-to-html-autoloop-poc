@@ -85,12 +85,57 @@ function extractJsonObject(text: string): string {
   throw new Error("No JSON object found in AI response");
 }
 
+function normalizeJsonText(text: string): string {
+  let normalized = text.trim().replace(/^\uFEFF/, "");
+  normalized = normalized.replace(/^```(?:json)?\s*/i, "").replace(/\s*```$/, "");
+  normalized = normalized.replace(/\}\s*"+\s*$/, "}");
+  return normalized;
+}
+
+function fallbackExtractJsonObject(text: string): string {
+  const normalized = normalizeJsonText(text);
+  const first = normalized.indexOf("{");
+  const last = normalized.lastIndexOf("}");
+  if (first >= 0 && last > first) {
+    return normalized.slice(first, last + 1);
+  }
+  throw new Error("No JSON object found in AI response");
+}
+
+function decodeEscapedString(value: string): string {
+  return value
+    .replace(/\\\\/g, "\\")
+    .replace(/\\"/g, "\"")
+    .replace(/\\n/g, "\n")
+    .replace(/\\r/g, "\r")
+    .replace(/\\t/g, "\t");
+}
+
+function salvageHtmlCss(raw: string): { html: string; css: string } {
+  const normalized = normalizeJsonText(raw);
+  const match = normalized.match(
+    /"html"\s*:\s*"([\s\S]*?)"\s*,\s*"css"\s*:\s*"([\s\S]*?)"\s*}\s*$/
+  );
+  if (!match) {
+    throw new Error("Failed to salvage html/css from malformed JSON");
+  }
+
+  return {
+    html: decodeEscapedString(match[1]),
+    css: decodeEscapedString(match[2])
+  };
+}
+
 function parseHtmlCssResponse(raw: string): { html: string; css: string } {
   let parsed: unknown;
   try {
-    parsed = JSON.parse(extractJsonObject(raw));
+    parsed = JSON.parse(extractJsonObject(normalizeJsonText(raw)));
   } catch {
-    throw new Error("AI response JSON is invalid");
+    try {
+      parsed = JSON.parse(fallbackExtractJsonObject(raw));
+    } catch {
+      return salvageHtmlCss(raw);
+    }
   }
 
   if (
@@ -111,9 +156,13 @@ function parseHtmlCssResponse(raw: string): { html: string; css: string } {
 function parseDiffAnalysisResponse(raw: string): DiffAnalysis {
   let parsed: unknown;
   try {
-    parsed = JSON.parse(extractJsonObject(raw));
+    parsed = JSON.parse(extractJsonObject(normalizeJsonText(raw)));
   } catch {
-    throw new Error("AI diff analysis JSON is invalid");
+    try {
+      parsed = JSON.parse(fallbackExtractJsonObject(raw));
+    } catch {
+      throw new Error("AI diff analysis JSON is invalid");
+    }
   }
 
   if (
@@ -199,6 +248,48 @@ async function runGemini(prompts: string[], logStem: string): Promise<string> {
   }
 
   throw new Error(lastError ?? "gemini command failed");
+}
+
+async function parseHtmlCssWithRepair(raw: string, logStem: string): Promise<{ html: string; css: string }> {
+  try {
+    return parseHtmlCssResponse(raw);
+  } catch {
+    const repairPrompt = [
+      "Repair the following malformed JSON into strict valid JSON.",
+      "Rules:",
+      "1) Output ONLY a single JSON object.",
+      "2) Keep content meaning unchanged.",
+      "3) Required keys: html, css (both strings).",
+      "4) Escape all quotes/newlines correctly.",
+      'Format: {"html":"...","css":"..."}',
+      "",
+      "Malformed input:",
+      raw
+    ].join("\n");
+
+    const repaired = await runGemini([repairPrompt], `${logStem}-repair`);
+    return parseHtmlCssResponse(repaired);
+  }
+}
+
+async function parseDiffAnalysisWithRepair(raw: string, logStem: string): Promise<DiffAnalysis> {
+  try {
+    return parseDiffAnalysisResponse(raw);
+  } catch {
+    const repairPrompt = [
+      "Repair the following malformed JSON into strict valid JSON.",
+      "Rules:",
+      "1) Output ONLY a single JSON object.",
+      "2) Required keys: summary(string), issues(array).",
+      "3) Each issue must include: category, severity, description, suggestedAction.",
+      "",
+      "Malformed input:",
+      raw
+    ].join("\n");
+
+    const repaired = await runGemini([repairPrompt], `${logStem}-repair`);
+    return parseDiffAnalysisResponse(repaired);
+  }
 }
 
 export class MockAiAdapter implements AiAdapter {
@@ -449,8 +540,9 @@ class GeminiCliAdapter implements AiAdapter {
       '{"html":"<full updated html>","css":"<full updated css>"}'
     ].join("\n");
 
-    const raw = await runGemini([prompt, strictPrompt], "initial-generation");
-    return parseHtmlCssResponse(raw);
+    const logStem = "initial-generation";
+    const raw = await runGemini([prompt, strictPrompt], logStem);
+    return parseHtmlCssWithRepair(raw, logStem);
   }
 
   async analyzeDiff(input: {
@@ -512,8 +604,9 @@ class GeminiCliAdapter implements AiAdapter {
 }`
     ].join("\n");
 
-    const raw = await runGemini([prompt, strictPrompt], `analysis-${Date.now()}`);
-    return parseDiffAnalysisResponse(raw);
+    const logStem = `analysis-${Date.now()}`;
+    const raw = await runGemini([prompt, strictPrompt], logStem);
+    return parseDiffAnalysisWithRepair(raw, logStem);
   }
 
   async reviseCode(input: {
@@ -569,11 +662,12 @@ class GeminiCliAdapter implements AiAdapter {
       '{"html":"<full updated html>","css":"<full updated css>"}'
     ].join("\n");
 
+    const logStem = `revise-${String(input.iteration).padStart(2, "0")}`;
     const raw = await runGemini(
       [prompt, strictPrompt],
-      `revise-${String(input.iteration).padStart(2, "0")}`
+      logStem
     );
-    return parseHtmlCssResponse(raw);
+    return parseHtmlCssWithRepair(raw, logStem);
   }
 }
 

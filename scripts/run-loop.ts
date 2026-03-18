@@ -157,7 +157,21 @@ async function main(): Promise<void> {
         diffRatio: finalDiffRatio,
         message: "Revising HTML/CSS"
       });
-      await reviseCode(adapter, analysis, iteration);
+      try {
+        await reviseCode(adapter, analysis, iteration);
+      } catch (error) {
+        const errorMessage = error instanceof Error ? error.message : String(error);
+        console.log(
+          `[WARN] iter=${iteration} phase=revise fallback=keep-previous-code reason="${errorMessage}"`
+        );
+        await reportProgress({
+          status: "running",
+          phase: "revise",
+          iteration,
+          diffRatio: finalDiffRatio,
+          message: `Revise failed, fallback to previous HTML/CSS: ${errorMessage}`
+        });
+      }
 
       previousDiffRatio = comparison.metrics.diffRatio;
     }
