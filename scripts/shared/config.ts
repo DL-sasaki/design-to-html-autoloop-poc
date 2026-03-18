@@ -1,4 +1,13 @@
 export const config = {
+  ai: {
+    mode: "gemini-cli" as "mock" | "prompt-export" | "gemini-cli",
+    gemini: {
+      command: "gemini",
+      args: ["-p"],
+      timeoutMs: 120000,
+      retryCount: 1
+    }
+  },
   inputImagePath: "input/design.png",
   outputHtmlPath: "output/index.html",
   outputCssPath: "output/styles.css",
@@ -19,6 +28,8 @@ export const config = {
     renders: "renders",
     diff: "diff",
     logs: "logs",
-    iterations: "logs/iterations"
+    iterations: "logs/iterations",
+    generatedPrompts: "prompts/generated",
+    aiLogs: "logs/ai"
   }
 };

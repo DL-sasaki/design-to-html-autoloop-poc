@@ -33,6 +33,8 @@ export async function prepareInput(): Promise<void> {
     ensureDir(config.directories.renders),
     ensureDir(config.directories.diff),
     ensureDir(config.directories.logs),
-    ensureDir(config.directories.iterations)
+    ensureDir(config.directories.iterations),
+    ensureDir(config.directories.generatedPrompts),
+    ensureDir(config.directories.aiLogs)
   ]);
 }

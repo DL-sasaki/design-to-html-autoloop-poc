@@ -1,4 +1,8 @@
-import { readText } from "./file-utils.js";
+import { access } from "node:fs/promises";
+import { spawn } from "node:child_process";
+import path from "node:path";
+import { config } from "./config.js";
+import { ensureDir, readText, writeText } from "./file-utils.js";
 import type { DiffAnalysis, DiffMetrics } from "./types.js";
 
 export interface AiAdapter {
@@ -16,11 +20,185 @@ export interface AiAdapter {
   }): Promise<DiffAnalysis>;
 
   reviseCode(input: {
+    iteration: number;
     html: string;
     css: string;
     analysis: DiffAnalysis;
     promptPath: string;
   }): Promise<{ html: string; css: string }>;
+}
+
+function extractJsonObject(text: string): string {
+  const trimmed = text.trim();
+  if (trimmed.startsWith("{") && trimmed.endsWith("}")) {
+    return trimmed;
+  }
+
+  const fenced = trimmed.match(/```(?:json)?\s*([\s\S]*?)\s*```/i);
+  if (fenced?.[1]) {
+    return fenced[1].trim();
+  }
+
+  const firstObjectStart = trimmed.indexOf("{");
+  if (firstObjectStart >= 0) {
+    let depth = 0;
+    let inString = false;
+    let escape = false;
+
+    for (let i = firstObjectStart; i < trimmed.length; i += 1) {
+      const ch = trimmed[i];
+
+      if (inString) {
+        if (escape) {
+          escape = false;
+          continue;
+        }
+        if (ch === "\\") {
+          escape = true;
+          continue;
+        }
+        if (ch === "\"") {
+          inString = false;
+        }
+        continue;
+      }
+
+      if (ch === "\"") {
+        inString = true;
+        continue;
+      }
+
+      if (ch === "{") {
+        depth += 1;
+        continue;
+      }
+
+      if (ch === "}") {
+        depth -= 1;
+        if (depth === 0) {
+          return trimmed.slice(firstObjectStart, i + 1);
+        }
+      }
+    }
+  }
+
+  throw new Error("No JSON object found in AI response");
+}
+
+function parseHtmlCssResponse(raw: string): { html: string; css: string } {
+  let parsed: unknown;
+  try {
+    parsed = JSON.parse(extractJsonObject(raw));
+  } catch {
+    throw new Error("AI response JSON is invalid");
+  }
+
+  if (
+    typeof parsed !== "object" ||
+    parsed === null ||
+    typeof (parsed as { html?: unknown }).html !== "string" ||
+    typeof (parsed as { css?: unknown }).css !== "string"
+  ) {
+    throw new Error("AI response JSON must include string html and css");
+  }
+
+  return {
+    html: (parsed as { html: string }).html,
+    css: (parsed as { css: string }).css
+  };
+}
+
+function parseDiffAnalysisResponse(raw: string): DiffAnalysis {
+  let parsed: unknown;
+  try {
+    parsed = JSON.parse(extractJsonObject(raw));
+  } catch {
+    throw new Error("AI diff analysis JSON is invalid");
+  }
+
+  if (
+    typeof parsed !== "object" ||
+    parsed === null ||
+    typeof (parsed as { summary?: unknown }).summary !== "string" ||
+    !Array.isArray((parsed as { issues?: unknown }).issues)
+  ) {
+    throw new Error("AI diff analysis JSON must include summary and issues[]");
+  }
+
+  return parsed as DiffAnalysis;
+}
+
+async function runGemini(prompts: string[], logStem: string): Promise<string> {
+  await ensureDir(config.directories.aiLogs);
+
+  const cmd = config.ai.gemini.command;
+
+  let attempt = 0;
+  const maxAttempts = Math.max(1, config.ai.gemini.retryCount + 1);
+  let lastError: string | null = null;
+
+  while (attempt < maxAttempts) {
+    attempt += 1;
+    const prompt = prompts[Math.min(attempt - 1, prompts.length - 1)];
+    const reqPath = path.join(config.directories.aiLogs, `${logStem}-attempt-${attempt}-request.txt`);
+    const resPath = path.join(config.directories.aiLogs, `${logStem}-attempt-${attempt}-response.txt`);
+    await writeText(reqPath, `${prompt}\n`);
+
+    const args = [...config.ai.gemini.args, prompt];
+    try {
+      const output = await new Promise<string>((resolve, reject) => {
+        const child = spawn(cmd, args, {
+          stdio: ["ignore", "pipe", "pipe"],
+          shell: false
+        });
+
+        let stdout = "";
+        let stderr = "";
+        let timedOut = false;
+
+        const timer = setTimeout(() => {
+          timedOut = true;
+          child.kill("SIGKILL");
+        }, config.ai.gemini.timeoutMs);
+
+        child.stdout.on("data", (chunk: Buffer) => {
+          stdout += chunk.toString("utf8");
+        });
+
+        child.stderr.on("data", (chunk: Buffer) => {
+          stderr += chunk.toString("utf8");
+        });
+
+        child.on("error", (error) => {
+          clearTimeout(timer);
+          reject(error);
+        });
+
+        child.on("close", (code) => {
+          clearTimeout(timer);
+          if (timedOut) {
+            reject(new Error(`gemini command timeout after ${config.ai.gemini.timeoutMs}ms`));
+            return;
+          }
+          if (code !== 0) {
+            reject(new Error(`gemini command failed (code=${code}): ${stderr || "no stderr"}`));
+            return;
+          }
+          resolve(stdout || stderr);
+        });
+      });
+
+      await writeText(resPath, `${output}\n`);
+      return output;
+    } catch (error) {
+      lastError = error instanceof Error ? error.message : String(error);
+      if (attempt >= maxAttempts) {
+        break;
+      }
+    }
+  }
+
+  throw new Error(lastError ?? "gemini command failed");
 }
 
 export class MockAiAdapter implements AiAdapter {
@@ -156,6 +334,7 @@ h1 {
   }
 
   async reviseCode(input: {
+    iteration: number;
     html: string;
     css: string;
     analysis: DiffAnalysis;
@@ -173,6 +352,237 @@ h1 {
   }
 }
 
+class PromptExportAdapter extends MockAiAdapter {
+  override async reviseCode(input: {
+    iteration: number;
+    html: string;
+    css: string;
+    analysis: DiffAnalysis;
+    promptPath: string;
+  }): Promise<{ html: string; css: string }> {
+    const promptInstruction = await readText(input.promptPath);
+    await ensureDir(config.directories.generatedPrompts);
+
+    const baseName = `iteration-${String(input.iteration).padStart(2, "0")}-revise`;
+    const requestPath = path.join(config.directories.generatedPrompts, `${baseName}-request.md`);
+    const responsePath = path.join(config.directories.generatedPrompts, `${baseName}-response.json`);
+    const samplePath = path.join(config.directories.generatedPrompts, `${baseName}-response.sample.json`);
+
+    const requestText = [
+      "# Revise Request",
+      "",
+      "## Instruction",
+      promptInstruction.trim(),
+      "",
+      "## Expected Output Format",
+      "Return JSON only:",
+      '{ "html": "<full updated html>", "css": "<full updated css>" }',
+      "",
+      "## Diff Analysis",
+      "```json",
+      JSON.stringify(input.analysis, null, 2),
+      "```",
+      "",
+      "## Current HTML",
+      "```html",
+      input.html,
+      "```",
+      "",
+      "## Current CSS",
+      "```css",
+      input.css,
+      "```",
+      "",
+      "## Response File Path",
+      responsePath
+    ].join("\n");
+
+    await Promise.all([
+      writeText(requestPath, `${requestText}\n`),
+      writeText(
+        samplePath,
+        `${JSON.stringify({ html: "<full updated html>", css: "<full updated css>" }, null, 2)}\n`
+      )
+    ]);
+
+    const responseExists = await access(responsePath)
+      .then(() => true)
+      .catch(() => false);
+
+    if (!responseExists) {
+      throw new Error(
+        `AI response JSON is missing: ${responsePath}. Fill this file with {"html":"...","css":"..."} and rerun.`
+      );
+    }
+
+    const raw = await readText(responsePath);
+    return parseHtmlCssResponse(raw);
+  }
+}
+
+class GeminiCliAdapter implements AiAdapter {
+  async generateInitial(input: {
+    imagePath: string;
+    promptPath: string;
+  }): Promise<{ html: string; css: string }> {
+    const instruction = await readText(input.promptPath);
+
+    const prompt = [
+      instruction.trim(),
+      "",
+      `Source design image path: ${input.imagePath}`,
+      "Analyze the image and generate initial page code.",
+      "Return ONLY valid JSON:",
+      '{"html":"<full updated html>","css":"<full updated css>"}'
+    ].join("\n");
+
+    const strictPrompt = [
+      instruction.trim(),
+      "",
+      `Source design image path: ${input.imagePath}`,
+      "Analyze the image and generate initial page code.",
+      "Output format rules:",
+      "1) Output ONLY a single JSON object.",
+      "2) Do not include markdown fences.",
+      "3) Do not include explanation text.",
+      "4) Use double quotes for all keys and string values.",
+      '{"html":"<full updated html>","css":"<full updated css>"}'
+    ].join("\n");
+
+    const raw = await runGemini([prompt, strictPrompt], "initial-generation");
+    return parseHtmlCssResponse(raw);
+  }
+
+  async analyzeDiff(input: {
+    imagePath: string;
+    renderPath: string;
+    diffPath: string;
+    metrics: DiffMetrics;
+    promptPath: string;
+  }): Promise<DiffAnalysis> {
+    const instruction = await readText(input.promptPath);
+
+    const prompt = [
+      instruction.trim(),
+      "",
+      `Source image path: ${input.imagePath}`,
+      `Render image path: ${input.renderPath}`,
+      `Diff image path: ${input.diffPath}`,
+      "Metrics:",
+      JSON.stringify(input.metrics, null, 2),
+      "",
+      "Return ONLY valid JSON:",
+      `{
+  "summary": "...",
+  "issues": [
+    {
+      "category": "missing-element|spacing|font-size|alignment|color|layout-proportion|unknown",
+      "severity": "low|medium|high",
+      "description": "...",
+      "suggestedAction": "..."
+    }
+  ]
+}`
+    ].join("\n");
+
+    const strictPrompt = [
+      instruction.trim(),
+      "",
+      `Source image path: ${input.imagePath}`,
+      `Render image path: ${input.renderPath}`,
+      `Diff image path: ${input.diffPath}`,
+      "Metrics:",
+      JSON.stringify(input.metrics, null, 2),
+      "",
+      "Output format rules:",
+      "1) Output ONLY a single JSON object.",
+      "2) Do not include markdown fences.",
+      "3) Do not include explanation text.",
+      "4) Use double quotes for all keys and string values.",
+      `{
+  "summary": "...",
+  "issues": [
+    {
+      "category": "missing-element|spacing|font-size|alignment|color|layout-proportion|unknown",
+      "severity": "low|medium|high",
+      "description": "...",
+      "suggestedAction": "..."
+    }
+  ]
+}`
+    ].join("\n");
+
+    const raw = await runGemini([prompt, strictPrompt], `analysis-${Date.now()}`);
+    return parseDiffAnalysisResponse(raw);
+  }
+
+  async reviseCode(input: {
+    iteration: number;
+    html: string;
+    css: string;
+    analysis: DiffAnalysis;
+    promptPath: string;
+  }): Promise<{ html: string; css: string }> {
+    const instruction = await readText(input.promptPath);
+
+    const prompt = [
+      instruction.trim(),
+      "",
+      "Diff analysis:",
+      JSON.stringify(input.analysis, null, 2),
+      "",
+      "Current HTML:",
+      "```html",
+      input.html,
+      "```",
+      "",
+      "Current CSS:",
+      "```css",
+      input.css,
+      "```",
+      "",
+      "Return ONLY valid JSON:",
+      '{"html":"<full updated html>","css":"<full updated css>"}'
+    ].join("\n");
+
+    const strictPrompt = [
+      instruction.trim(),
+      "",
+      "Diff analysis:",
+      JSON.stringify(input.analysis, null, 2),
+      "",
+      "Current HTML:",
+      "```html",
+      input.html,
+      "```",
+      "",
+      "Current CSS:",
+      "```css",
+      input.css,
+      "```",
+      "",
+      "Output format rules:",
+      "1) Output ONLY a single JSON object.",
+      "2) Do not include markdown fences.",
+      "3) Do not include explanation text.",
+      "4) Use double quotes for all keys and string values.",
+      '{"html":"<full updated html>","css":"<full updated css>"}'
+    ].join("\n");
+
+    const raw = await runGemini(
+      [prompt, strictPrompt],
+      `revise-${String(input.iteration).padStart(2, "0")}`
+    );
+    return parseHtmlCssResponse(raw);
+  }
+}
+
 export function createAiAdapter(): AiAdapter {
+  if (config.ai.mode === "gemini-cli") {
+    return new GeminiCliAdapter();
+  }
+  if (config.ai.mode === "prompt-export") {
+    return new PromptExportAdapter();
+  }
   return new MockAiAdapter();
 }

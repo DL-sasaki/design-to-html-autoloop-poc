@@ -13,6 +13,35 @@ function nowIso(): string {
   return new Date().toISOString();
 }
 
+async function reportProgress(input: {
+  status: "running" | "success" | "failed";
+  phase:
+    | "prepare-input"
+    | "generate-initial"
+    | "render"
+    | "compare"
+    | "analyze"
+    | "revise"
+    | "finalize"
+    | "done";
+  iteration: number;
+  diffRatio: number | null;
+  message: string;
+}): Promise<void> {
+  const payload = {
+    ...input,
+    timestamp: nowIso()
+  };
+
+  await writeLatestStatus(payload);
+
+  const diffPart =
+    payload.diffRatio === null ? "diff=n/a" : `diff=${payload.diffRatio.toFixed(4)}`;
+  console.log(
+    `[${payload.status.toUpperCase()}] iter=${payload.iteration} phase=${payload.phase} ${diffPart} msg="${payload.message}"`
+  );
+}
+
 async function main(): Promise<void> {
   const adapter = createAiAdapter();
   const startTime = nowIso();
@@ -26,58 +55,53 @@ async function main(): Promise<void> {
   let stopReason = "maxIterations reached";
 
   try {
-    await writeLatestStatus({
+    await reportProgress({
       status: "running",
       phase: "prepare-input",
       iteration: 0,
       diffRatio: null,
-      message: "Preparing input",
-      timestamp: nowIso()
+      message: "Preparing input"
     });
 
     await prepareInput();
 
-    await writeLatestStatus({
+    await reportProgress({
       status: "running",
       phase: "generate-initial",
       iteration: 0,
       diffRatio: null,
-      message: "Generating initial HTML/CSS",
-      timestamp: nowIso()
+      message: "Generating initial HTML/CSS"
     });
 
     await generateInitial(adapter);
 
     for (let iteration = 1; iteration <= config.maxIterations; iteration += 1) {
-      await writeLatestStatus({
+      await reportProgress({
         status: "running",
         phase: "render",
         iteration,
         diffRatio: finalDiffRatio,
-        message: "Rendering current output",
-        timestamp: nowIso()
+        message: "Rendering current output"
       });
       latestRenderPath = await renderPage(iteration);
 
-      await writeLatestStatus({
+      await reportProgress({
         status: "running",
         phase: "compare",
         iteration,
         diffRatio: finalDiffRatio,
-        message: "Comparing render and source",
-        timestamp: nowIso()
+        message: "Comparing render and source"
       });
       const comparison = await compareImages(iteration, latestRenderPath);
       latestDiffPath = comparison.diffPath;
       finalDiffRatio = comparison.metrics.diffRatio;
 
-      await writeLatestStatus({
+      await reportProgress({
         status: "running",
         phase: "analyze",
         iteration,
         diffRatio: finalDiffRatio,
-        message: "Analyzing diff",
-        timestamp: nowIso()
+        message: "Analyzing diff"
       });
       const analysis = await analyzeDiff({
         adapter,
@@ -99,6 +123,11 @@ async function main(): Promise<void> {
         status: "success",
         timestamp: nowIso()
       });
+      console.log(
+        `[METRIC] iter=${iteration} diff=${comparison.metrics.diffRatio.toFixed(4)} improvement=${
+          improvementFromPrevious === null ? "n/a" : improvementFromPrevious.toFixed(4)
+        }`
+      );
 
       iterationsCompleted = iteration;
 
@@ -121,26 +150,24 @@ async function main(): Promise<void> {
         break;
       }
 
-      await writeLatestStatus({
+      await reportProgress({
         status: "running",
         phase: "revise",
         iteration,
         diffRatio: finalDiffRatio,
-        message: "Revising HTML/CSS",
-        timestamp: nowIso()
+        message: "Revising HTML/CSS"
       });
-      await reviseCode(adapter, analysis);
+      await reviseCode(adapter, analysis, iteration);
 
       previousDiffRatio = comparison.metrics.diffRatio;
     }
 
-    await writeLatestStatus({
+    await reportProgress({
       status: "running",
       phase: "finalize",
       iteration: iterationsCompleted,
       diffRatio: finalDiffRatio,
-      message: "Finalizing outputs",
-      timestamp: nowIso()
+      message: "Finalizing outputs"
     });
 
     await finalizeRun({
@@ -154,24 +181,22 @@ async function main(): Promise<void> {
       stopReason
     });
 
-    await writeLatestStatus({
+    await reportProgress({
       status: "success",
       phase: "done",
       iteration: iterationsCompleted,
       diffRatio: finalDiffRatio,
-      message: "Run completed",
-      timestamp: nowIso()
+      message: "Run completed"
     });
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : String(error);
 
-    await writeLatestStatus({
+    await reportProgress({
       status: "failed",
       phase: "done",
       iteration: iterationsCompleted,
       diffRatio: finalDiffRatio,
-      message: errorMessage,
-      timestamp: nowIso()
+      message: errorMessage
     });
 
     await finalizeRun({

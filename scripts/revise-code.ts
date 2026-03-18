@@ -3,13 +3,18 @@ import { readText, writeText } from "./shared/file-utils.js";
 import type { AiAdapter } from "./shared/ai-adapter.js";
 import type { DiffAnalysis } from "./shared/types.js";
 
-export async function reviseCode(adapter: AiAdapter, analysis: DiffAnalysis): Promise<void> {
+export async function reviseCode(
+  adapter: AiAdapter,
+  analysis: DiffAnalysis,
+  iteration: number
+): Promise<void> {
   const [html, css] = await Promise.all([
     readText(config.outputHtmlPath),
     readText(config.outputCssPath)
   ]);
 
   const revised = await adapter.reviseCode({
+    iteration,
     html,
     css,
     analysis,
